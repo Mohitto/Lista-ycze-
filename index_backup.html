@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>❄️ Lista Prezentów Świątecznych ⛄</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                        'pulse-slow': 'pulse 3s infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Modern Mesh/Radial Gradient Background */
+            background-color: #7f1d1d;
+            /* Deep Red Base */
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(239, 68, 68, 0.8) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(249, 115, 22, 0.6) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(185, 28, 28, 0.5) 0%, transparent 60%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            color: white;
+        }
+
+        /* Snowflakes - FOREGROUND & CLICK-THROUGH */
+        .snowflake {
+            position: fixed;
+            top: -20px;
+            z-index: 9999;
+            pointer-events: none;
+            user-select: none;
+            cursor: default;
+            animation-name: snowfall;
+            animation-duration: 10s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0.9;
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(0vh) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Loaders */
+        .loading-animation {
+            border-top-color: #ffffff;
+            animation: spinner 1.5s linear infinite;
+        }
+
+        .image-loader {
+            border-top: 3px solid #ffffff;
+            border-right: 3px solid transparent;
+            border-bottom: 3px solid transparent;
+            border-left: 3px solid transparent;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spinner {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="p-4 sm:p-8">
+    <!-- Snowflakes Container -->
+    <div id="snowflakes"></div>
+
+    <!-- Floating Music Control -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button id="musicToggle"
+            class="glass-panel text-white px-6 py-3 rounded-full flex items-center space-x-3 hover:bg-white/20 transition duration-300 animate-pulse-slow">
+            <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="font-bold text-sm tracking-wide">Włącz Muzykę</span>
+            <svg id="pauseIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="max-w-7xl mx-auto mt-12 mb-24 relative z-10">
+        <!-- Hero Header -->
+        <header class="mb-16 text-center px-4">
+            <div class="inline-block glass-panel px-6 py-8 md:px-12 rounded-3xl max-w-4xl">
+                <h1 class="text-5xl md:text-6xl font-extrabold mb-8 drop-shadow-lg text-white">
+                    ❄️ <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-100 to-white">Lista
+                        Prezentów</span> ⛄
+                </h1>
+                <div class="text-red-50 text-lg font-light leading-relaxed space-y-6 text-left md:text-center">
+                    <p class="font-bold">
+                        Dorzucam też od siebie życzenia świąteczne – oby ten czas minął Wam bez pośpiechu, stresu i
+                        świątecznej gorączki. Życzę Wam dużo spokoju w głowie i żebyście po prostu fajnie, na luzie
+                        spędzili ten czas w rodzinnym gronie.
+                    </p>
+                    <p class="text-base border-t border-white/20 pt-4 font-bold">
+                        Poniżej wklejam linki do sklepów, gdzie znalazłem te rzeczy w najniższych cenach. Traktujcie to
+                        jednak tylko jako luźną podpowiedź ode mnie, żeby nie trzeba było szukać po całym internecie.
+                        Jeśli znajdziecie to gdzieś indziej lub stacjonarnie, to oczywiście pełna dowolność – nie ma
+                        żadnego przymusu zakupu akurat w tych konkretnych miejscach.
+                    </p>
+                </div>
+            </div>
+        </header>
+
+        <div id="product-list" class="space-y-12">
+            <div id="loading" class="glass-panel flex flex-col justify-center items-center p-12 rounded-3xl">
+                <div class="loading-animation border-4 border-white/30 border-solid rounded-full h-12 w-12 mb-4"></div>
+                <span class="text-xl text-white font-bold tracking-wide">Wczytywanie prezentów...</span>
+            </div>
+        </div>
+
+        <!-- Background music -->
+        <audio id="bgMusic" loop autoplay>
+            <source src="sound/merry-christmas.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script type="module">
+        // Snowflakes Logic
+        function createSnowflakes() {
+            const snowflakesContainer = document.getElementById('snowflakes');
+            const snowflakeCount = 100;
+
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                const size = Math.random() * 6 + 3;
+                snowflake.style.width = size + 'px';
+                snowflake.style.height = size + 'px';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                snowflake.style.animationDelay = Math.random() * 5 + 's';
+                snowflakesContainer.appendChild(snowflake);
+            }
+        }
+        createSnowflakes();
+
+        // Music Control Logic
+        const audio = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const buttonText = musicToggle.querySelector('span');
+        let isPlaying = false;
+
+        if (audio) {
+            audio.volume = 0.1;
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    isPlaying = true;
+                    playIcon.classList.add('hidden');
+                    pauseIcon.classList.remove('hidden');
+                    buttonText.textContent = 'Wycisz';
+                }).catch(error => {
+                    console.log("Autoplay prevented:", error);
+                    isPlaying = false;
+                });
+            }
+
+            musicToggle.addEventListener('click', () => {
+                if (isPlaying) {
+                    audio.pause();
+                    playIcon.classList.remove('hidden');
+                    pauseIcon.classList.add('hidden');
+                    buttonText.textContent = 'Włącz Muzykę';
+                } else {
+                    audio.play();
+                    playIcon.classList.add('hidden');
+                    pauseIcon.classList.remove('hidden');
+                    buttonText.textContent = 'Wycisz';
+                }
+                isPlaying = !isPlaying;
+            });
+        }
+
+        const loadingIndicator = document.getElementById('loading');
+        const productListContainer = document.getElementById('product-list');
+
+        const csvData = `
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,Carcassone,,,,,
+,,,Carcassone,Empik,84.98,"https://www.empik.com/carcassonne-edycja-2-0-gra-bard-bard,p1045660282,zabawki-p",Gandalf,101.76,"https://www.gandalf.com.pl/p/bard-gra-carcassonne/",Allegro,93.47,"https://allegro.pl/oferta/carcassonne-edycja-podstawowa-klaus-jurgen-wrede-12211161757"
+,,,Dodatek do gry Terraformacja Marsa,,,,,
+,,,Hellas & Elysium,Allegro,33,"https://allegro.pl/oferta/rebel-terraformacja-marsa-hellas-i-elysium-16269662124",Media Expert,38,"https://www.mediaexpert.pl/zabawki/gry-planszowe-i-puzzle/gry-planszowe/dodatek-do-gry-rebel-terraformacja-marsa-hellas-i-elysium",Gandalf,41,"https://www.gandalf.com.pl/p/rebel-gra-terraformacja-marsa-hellas/"
+,,,Preludium,Media Expert,48,"https://www.mediaexpert.pl/zabawki/gry-planszowe-i-puzzle/gry-planszowe/dodatek-do-gry-rebel-terraformacja-marsa-preludium-107273",Empik,49,"https://www.empik.com/terraformacja-marsa-preludium-gra-planszowa-rebel-dodatek-rebel,p1209702104,zabawki-p",Gandalf,57,"https://www.gandalf.com.pl/p/rebel-gra-terraformacja-marsa-a/"
+,,,Zestaw 5 plansz graczy (z wycięciami),Allegro,50,"https://allegro.pl/oferta/terraformacja-marsa-zestaw-5-plansz-graczy-z-wycieciami-18097634272",Gandalf,52,"https://www.gandalf.com.pl/p/rebel-gra-transformacja-marsa-zestaw/",Empik,60,"https://www.empik.com/dodatek-do-gry-terraformacja-marsa-zestaw-5-plansz-graczy-z-wycieciami
+
+-rebel-rebel,p1240553893,zabawki-p"
+,,,Wenus,Media Expert,73,"https://www.mediaexpert.pl/zabawki/gry-planszowe-i-puzzle/gry-planszowe/dodatek-do-gry-rebel-terraformacja-marsa-wenus?utm_source=Ceneo&utm_medium=cpc&utm_content=1125044&utm_campaign=2025-11&utm_term=Gry-planszowe&ceneo_spo=false&ceneo_cid=cecd49be-9543-d4e7-0251-140d4c1cc1bd",Allegro,73,"https://allegro.pl/oferta/gra-planszowa-rebel-terraformacja-marsa-wenus-10688668298?bi_s=ads&bi_m=productlisting:desktop:query&bi_c=YWIyOGU5YTQtMjRkNC00NzBkLWFhN2MtOWVjNDhkYmMyODllAA&bi_t=ape&referrer=proxy&emission_unit_id=c566dd5b-7bf6-4efd-94ff-c4a77e92c541",Gandalf,73,"https://www.gandalf.com.pl/p/rebel-gra-terraformacja-marsa-wenus/"
+,,,Niepokoje,Media Expert,80,"https://www.mediaexpert.pl/zabawki/gry-planszowe-i-puzzle/gry-planszowe/dodatek-do-gry-rebel-terraformacja-marsa-niepokoje?",Allegro,90,"https://allegro.pl/produkt/gra-planszowa-terraformacja-marsa-niepokoje-rebel-7c58691e-1298-4c8a-a07d-b885030b7e4f?offerId=17770762476",Gandalf,90,"https://www.gandalf.com.pl/p/rebel-gra-terraformacja-marsa-turmoil/"
+,,,Dodatek do gry Osadnicy z Catanu,,,,,
+,,,Miasta i Rycerze,Dragon Eye (-4zł),154,"https://dragoneye.pl/catan-miasta-i-rycerze-rozszerzenie-p-157.html",Ale Planszówki (-14zł),164,"https://aleplanszowki.pl/dodatki-do-gier/27405-catan-miasta-i-rycerze-nowa-edycja-5902259208150.html",Allegro (-23zł),173,"https://allegro.pl/oferta/gra-planszowa-catan-miasta-i-rycerze-nowe-wydanie-galakta-18020514274"
+,,,Kupcy i Barbarzyńcy,Smyk,127,"https://www.smyk.com/p/galakta-catan-kupcy-i-barbarzyncy-dodatek-do-gry-i6039428",Allegro,140,"https://allegro.pl/oferta/gra-planszowa-catan-kupcy-i-barbarzyncy-nowe-wydanie-galakta-18020519255",Bonito,150,"https://bonito.pl/produkt/gra-catan-kupcy-i-barbarzyncy"
+,,,Elektroniczne gadżety,,,,,
+,,,Klawiatura Logitech K400 Plus Szary,Allegro,135,"https://allegro.pl/oferta/klawiatura-logitech-k400-plus-szary-13015065206",Amazon,135,"https://www.amazon.pl/dp/B010EPT2X6?tag=ceneo0c-21&linkCode=ogi&th=1&psc=1&utm_source=ceneo&utm_feed=amselect&utm_medium=referral&ascSubtag=7e8c7c57-4b6f-b134-923d-59a082d16aed",Media Expert,150,"https://www.mediaexpert.pl/komputery-i-tablety/klawiatury-komputerowe/klawiatur
+
+y/klawiatura-logitech-k400-plus-szary"
+,,,Lupa do telefonu 16+Cali,Allegro,106,"https://allegro.pl/oferta/stebruam-18-calowa-lupa-do-telefonu-mobilny-wzmacniacz-ekranu-r7-3-18006719029",Amazon (-6zł),156,"https://www.amazon.pl/STEBRUAM-wzmacniacz-Wzmacniacz-odpowiedni-smartfonie/dp/B09MKNSGF4?th=1",,
+,,,Żarówka Wifi RGB minimum 1000lm,Ledone,20,"https://ledone.pl/e27/3486-zarowka-smart-inteligentna-led-e27-a60-12w-rgbcct-na-wifi--bluetooth-5904261965694.html",Allegro,30,"https://allegro.pl/oferta/zarowka-led-e27-a65-15w-1500lm-rgb-cct-sciemnialna-tuya-wifi-smart-lumiled-18081016639",Media Expert,40,"https://www.mediaexpert.pl/dom/zarowki/zrodla-swiatla/inteligentna-zarowka-led-setti-sl327rgb-14w-e27-wi-fi"
+,,,Gadżety,,,,,
+,,,Kostka Antystresowa,Amazon,23,"https://www.amazon.pl/Yeefunjoy-sensoryczna-kontroler-nieskończoności-przeciwlękowa/dp/B0BXPHB2ZJ/ref=sr_1_7?dib=eyJ2IjoiMSJ9.MCia-922-TGFA6EZxNO-qMwVp9hkM3qF00-Gd0oLgQPvRLlhRUwlkKQ6RBWq6jhs2CUx4esSPV8kLidsD7m8KCeeBXoyebP4rOeJMCxDKt5hZ3qGUf8W6JLsjm7QZahqdLa3lVprNB2_JocHFsuLASEPuWsHZQJfaEVEkYzveJEjX84-JZvLY4ZEO1eQeGdfJnkH1ZyUUYUjfdWd1DrWdWH9NnF9JCVdfkPLJ5V26WvlhllZ3vA9GSLbnGPb6cW8ATogT338JdlffE3rBbzhWzELf6A2TZbtltRBA4X-RU8.fNMefYkJvNyDzzkgEwB34MlNKoBgmcy8haJaeb8Ab-E&dib_tag=se&keywords=fidget+cube&qid=1763935202&sr=8-7",Empik,25,"https://www.empik.com/fidget-cube-kostka-odstresowujaca-antystresowa-pl-volan,p1546487122,zabawki-p",Allegro,38,"https://allegro.pl/oferta/zabawka-antystresowa-metalowy-magnetyczny-suwak-fidget-toys-adhd-ocd-17753036715?fromVariant=17752845854"
+`;
+
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const data = [];
+            let currentCategory = 'Inne';
+            const extractDiscount = (sellerName) => {
+                const match = sellerName.match(/(.+?)\s*\((.+?)\)/);
+                if (match) return { seller: match[1].trim(), discount: match[2].trim() };
+                return { seller: sellerName, discount: null };
+            };
+
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                const cells = [];
+                let currentCell = '';
+                let inQuotes = false;
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    if (char === '"') inQuotes = !inQuotes;
+                    else if (char === ',' && !inQuotes) {
+                        let val = currentCell.trim();
+                        if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
+                        cells.push(val);
+                        currentCell = '';
+                    } else currentCell += char;
+                }
+                let lastVal = currentCell.trim();
+                if (lastVal.startsWith('"') && lastVal.endsWith('"')) lastVal = lastVal.slice(1, -1);
+                cells.push(lastVal);
+
+                const D = cells[3];
+                if (!D) continue;
+                if (D && !cells[4] && !cells[5]) { currentCategory = D; continue; }
+
+                const product = { category: currentCategory, name: D, prices: [] };
+                const addPrice = (idx) => {
+                    if (cells[idx] && cells[idx + 1]) {
+                        const { seller, discount } = extractDiscount(cells[idx]);
+                        product.prices.push({ seller, price: parseFloat(cells[idx + 1]) || 0, link: cells[idx + 2] || '#', discount });
+                    }
+                };
+                addPrice(4); addPrice(7); addPrice(10);
+                if (product.prices.length > 0) data.push(product);
+            }
+            return data;
+        }
+
+        function renderProductCard(product, index) {
+            const imageContainerId = `product-image-${index}`;
+            const sortedPrices = [...product.prices].sort((a, b) => a.price - b.price);
+            const top3Prices = sortedPrices.slice(0, 3);
+            const lowestPrice = top3Prices[0].price;
+            const hasMultiplePrices = lowestPrice !== top3Prices[top3Prices.length - 1].price;
+
+            const pricesHTML = top3Prices.map((p) => {
+                const isCheapest = hasMultiplePrices && p.price === lowestPrice;
+                const isMediaExpert = p.seller === 'Media Expert';
+                const priceText = p.price > 0 ? Math.ceil(p.price) + ' zł' : 'Sprawdź';
+
+                // Modern Pill Styles for Prices
+                let bgClass = 'bg-white/10 border-white/20 text-white hover:bg-white/20';
+                if (isCheapest) bgClass = 'bg-green-500/20 border-green-400/50 text-green-100 hover:bg-green-500/30';
+                if (isMediaExpert) bgClass = 'bg-blue-500/20 border-blue-400/50 text-blue-100 hover:bg-blue-500/30';
+
+                return `
+                    <a href="${p.link}" target="_blank" class="flex justify-between items-center p-3 rounded-xl border transition-all duration-300 ${bgClass} ${isCheapest ? 'shadow-[0_0_15px_rgba(34,197,94,0.3)]' : ''}">
+                        <div class="flex items-center space-x-2">
+                             ${isCheapest ? '<span class="text-[10px] bg-green-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-sm">Najtaniej</span>' : ''}
+                             <span class="font-medium text-sm opacity-90">${p.seller}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="font-bold text-lg mr-2">${priceText}</span>
+                            ${p.discount ? `<span class="text-xs opacity-70 mr-1">(${p.discount})</span>` : ''}
+                            <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+
+            //  Vertical Card Layout
+            return `
+                <div class="glass-card rounded-3xl p-5 flex flex-col h-full animate-fade-in-up" style="animation-delay: ${index * 0.1}s">
+                    <div id="${imageContainerId}" class="w-full h-48 mb-5 rounded-2xl bg-white/5 flex items-center justify-center overflow-hidden relative group">
+                        <div class="image-loader rounded-full"></div>
+                    </div>
+                    
+                    <div class="flex-grow">
+                        <div class="mb-4">
+                            <span class="inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase bg-white/10 text-white/80 mb-2 border border-white/10">
+                                ${product.category}
+                            </span>
+                            <h2 class="text-xl font-bold text-white leading-tight">${product.name}</h2>
+                        </div>
+                        
+                        <div class="space-y-3 mt-auto">
+                            ${pricesHTML}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        const localImages = {
+            "Carcassone": "images/carcassonne.png",
+            "Hellas & Elysium": "images/hellas_elysium.png",
+            "Preludium": "images/preludium.jpg",
+            "Zestaw 5 plansz graczy (z wycięciami)": "images/player_boards.jpg",
+            "Wenus": "images/wenus.jpg",
+            "Niepokoje": "images/niepokoje.png",
+            "Miasta i Rycerze": "images/miasta_i_rycerze.png",
+            "Kupcy i Barbarzyńcy": "images/kupcy_i_barbarzyncy.png",
+            "Klawiatura Logitech K400 Plus Szary": "images/logitech_k400.png",
+            "Lupa do telefonu 16+Cali": "images/lupa_do_telefonu.png",
+            "Żarówka Wifi RGB minimum 1000lm": "images/zarowka_rgb.png",
+            "Kostka Antystresowa": "images/kostka_antystresowa.png"
+        };
+
+        async function updateProductImage(product, index) {
+            const imageContainer = document.getElementById(`product-image-${index}`);
+            if (!imageContainer) return;
+            if (localImages[product.name]) {
+                imageContainer.innerHTML = `<img src="${localImages[product.name]}" alt="${product.name}" class="object-contain w-full h-full p-4 transition-transform duration-500 group-hover:scale-110 drop-shadow-xl">`;
+            } else {
+                imageContainer.innerHTML = `<div class="text-center text-white/40 text-xs font-bold">❄️ Brak zdjęcia</div>`;
+            }
+        }
+
+        async function initializeApp() {
+            try {
+                const products = parseCSV(csvData);
+
+                let htmlContent = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">';
+                const allProductsWithIndex = [];
+
+                products.forEach((product, index) => {
+                    htmlContent += renderProductCard(product, index);
+                    allProductsWithIndex.push({ product, index });
+                });
+
+                htmlContent += '</div>';
+
+                productListContainer.innerHTML = htmlContent;
+                loadingIndicator.classList.add('hidden');
+                await Promise.all(allProductsWithIndex.map(({ product, index }) => updateProductImage(product, index)));
+
+            } catch (error) {
+                console.error(error);
+                loadingIndicator.classList.add('hidden');
+                productListContainer.innerHTML = `<div class="glass-panel p-8 text-center text-red-200 text-xl font-bold">❄️ Wystąpił błąd: ${error.message}</div>`;
+            }
+        }
+
+        initializeApp();
+    </script>
+</body>
+
+</html>
